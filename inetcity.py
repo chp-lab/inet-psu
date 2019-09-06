@@ -24,7 +24,7 @@ class Graph(object):
     def find_all_paths(self, start_vertex, end_vertex, path=[]):
         graph = self.__graph_dict
         path = path + [start_vertex]
-
+        
         if start_vertex == end_vertex:
             return [path]
         if start_vertex not in graph:
@@ -40,26 +40,40 @@ class Graph(object):
         return paths
 
 
-    def diameter(self):
-        v = self.vertices()
-        # all coordinated
-        # [ function(i,j) for i,j in object ]
-        pairs = [(v[i], v[j]) for i in range(len(v) - 1) for j in range(i + 1, len(v))]
-        print "all coordinate= ", pairs
-        smallest_paths = []
-        # Iteration in pairs
-        for (s, e) in pairs:
-            paths = self.find_all_paths(s, e)
-            smallest = sorted(paths, key=len)[0]
-            smallest_paths.append(smallest)
+    # def diameter(self):
+    #     v = self.vertices()
+    #     # all coordinated
+    #     # [ function(i,j) for i,j in object ]
+    #     pairs = [(v[i], v[j]) for i in range(len(v) - 1) for j in range(i + 1, len(v))]
+    #     print "all coordinate= ", pairs
+    #     smallest_paths = []
+    #     # Iteration in pairs
+    #     for (s, e) in pairs:
+    #         paths = self.find_all_paths(s, e)
+    #         smallest = sorted(paths, key=len)[0]
+    #         smallest_paths.append(smallest)
+    #
+    #     smallest_paths.sort(key=len)
+    #
+    #     diameter = len(smallest_paths[-1]) - 1
+    #     return diameter
 
-        smallest_paths.sort(key=len)
-
-        diameter = len(smallest_paths[-1]) - 1
-        return diameter
+    def myShrotedPath(self, src, dest):
+        all_path = self.find_all_paths(src, dest)
+        print "all_path=", all_path
+        smallest = sorted(all_path, key=len)[0]
+        return smallest
 
 if __name__ == "__main__":
     g = { "a" : ["c"],
+          "b" : ["c","e","f"],
+          "c" : ["a","b","d","e"],
+          "d" : ["c"],
+          "e" : ["b","c","f"],
+          "f" : ["b","e"]
+    }
+
+    new_g = { "a" : ["c"],
           "b" : ["c","e","f"],
           "c" : ["a","b","d","e"],
           "d" : ["c"],
@@ -71,13 +85,16 @@ if __name__ == "__main__":
 
     graph = Graph(g)
 
-    print "Vertices of graph:"
-    print graph.vertices()
+    # print "Vertices of graph:"
+    # print graph.vertices()
+    #
+    # print "Edges of graph:"
+    # print graph.edges()
+    #
+    # print "All path from a to f:"
+    # print graph.find_all_paths("a", "f")
 
-    print "Edges of graph:"
-    print graph.edges()
-
-    print "All path from a to f:"
-    print graph.find_all_paths("a", "f")
+    print "Shorted path from a to f is:"
+    print graph.myShrotedPath("a", "f")
 
 
