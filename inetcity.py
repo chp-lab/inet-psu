@@ -14,6 +14,7 @@ class Graph(object):
 
     def __generate_edges(self):
         edges = []
+        # read more about set --> thisset = {"apple", "banana", "cherry"}
         for vertex in self.__graph_dict:
             for neighbour in self.__graph_dict[vertex]:
                 if {neighbour, vertex} not in edges:
@@ -41,9 +42,12 @@ class Graph(object):
 
     def diameter(self):
         v = self.vertices()
+        # all coordinated
+        # [ function(i,j) for i,j in object ]
         pairs = [(v[i], v[j]) for i in range(len(v) - 1) for j in range(i + 1, len(v))]
-
+        print "all coordinate= ", pairs
         smallest_paths = []
+        # Iteration in pairs
         for (s, e) in pairs:
             paths = self.find_all_paths(s, e)
             smallest = sorted(paths, key=len)[0]
@@ -67,15 +71,13 @@ if __name__ == "__main__":
 
     graph = Graph(g)
 
-    print("Vertices of graph:")
-    print(graph.vertices())
+    print "Vertices of graph:"
+    print graph.vertices()
 
-    print("Edges of graph:")
-    print(graph.edges())
+    print "Edges of graph:"
+    print graph.edges()
 
-    print("All path:")
-    print(graph.find_all_paths("a", "f"))
+    print "All path from a to f:"
+    print graph.find_all_paths("a", "f")
 
-    diameter = graph.diameter()
 
-    print(diameter)
