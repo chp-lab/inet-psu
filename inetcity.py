@@ -95,19 +95,20 @@ if __name__ == "__main__":
         # print "node", node, "routing table=", my_graph[node]
         connect_to_id = random.randint(0, num_node - 1)
         connect_to = chr(connect_to_id + ord('a'))
-        while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
-            # print node, "cannot connect to", connect_to
-            connect_to_id = random.randint(0, num_node - 1)
-            connect_to = chr(connect_to_id + ord('a'))
-        # print node, "connected to=", connect_to
-        cost = random.randint(1, 3)
-        # protect duplicated connection
-        if connect_to not in my_graph[node]["neighbor"]:
-            my_graph[node]["neighbor"].append(connect_to)
-            my_graph[connect_to]["neighbor"].append(node)
-            my_graph[node]["cost"].append(cost)
-            my_graph[connect_to]["cost"].append(cost)
-        # print "node(update)", node, "routing table=", my_graph[node]
+        if len(my_graph[node]["neighbor"]) < 3:
+            while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
+                # print node, "cannot connect to", connect_to
+                connect_to_id = random.randint(0, num_node - 1)
+                connect_to = chr(connect_to_id + ord('a'))
+            # print node, "connected to=", connect_to
+            cost = random.randint(1, 3)
+            # protect duplicated connection
+            if connect_to not in my_graph[node]["neighbor"]:
+                my_graph[node]["neighbor"].append(connect_to)
+                my_graph[connect_to]["neighbor"].append(node)
+                my_graph[node]["cost"].append(cost)
+                my_graph[connect_to]["cost"].append(cost)
+            # print "node(update)", node, "routing table=", my_graph[node]
     print "routing table=", my_graph
 
     graph = City(my_graph)
