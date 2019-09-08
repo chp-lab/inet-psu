@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 class Network(object):
-    # constructure
+    @staticmethod
+    def pathCostMax():
+        return 10
     def __init__(self, graph_dict=None):
         if graph_dict == None:
             graph_dict = {}
@@ -95,24 +97,41 @@ class Network(object):
 
     def drawing(self):
         G = nx.Graph()
+        plt.figure(figsize=(12, 6))
         graph = self.__graph_dict
-        nodes = []
+        nodes = self.vertices()
         edges = self.edges()
-        print "edges=", edges
-        for node in graph:
-            # print "node=", node
-            nodes.append(node)
-        # print "nodes=", nodes
+
+        for node in nodes:
+            G.add_node(node, pos=(random.randint(1, 100), random.randint(1, 100)))
 
         edges_list = []
         for edge in edges:
-            # print edge['data']
-            pair = (edge['data'].pop(), edge['data'].pop())
-            edges_list.append(pair)
-        # print "edges list=", edges_list
-        G.add_nodes_from(nodes)
-        G.add_edges_from(edges_list)
-        nx.draw_networkx(G, with_labels=True)
+            G.add_edge(edge['data'].pop(), edge['data'].pop(), weight=edge['cost'], label=str(edge['cost']))
+
+        elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] <= Network.pathCostMax()/2]  # solid edge
+        esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] > Network.pathCostMax()/2]  # dashed edge
+
+        # Retrieve the positions from graph nodes and save to a dictionary
+        pos = nx.get_node_attributes(G, 'pos')
+
+        # Draw nodes
+        nx.draw_networkx_nodes(G, pos, node_size=400, node_color='orange')
+        # Draw node labels
+        nx.draw_networkx_labels(G, pos, font_size=18, font_family='sans-serif')
+
+        # Draw edges
+        nx.draw_networkx_edges(G, pos, edgelist=elarge, width=2, edge_color='g')
+        nx.draw_networkx_edges(G, pos, edgelist=esmall, arrows=False, width=3,
+                               alpha=0.5, edge_color='b', style='dashed')
+
+        # Draw edge labels
+        edge_labels = dict([((u, v), d['label'])
+                            for u, v, d in G.edges(data=True)])
+
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+        plt.axis('off')
         plt.show()
 
     @staticmethod
@@ -136,7 +155,7 @@ class Network(object):
                     connect_to_id = random.randint(0, num_node - 1)
                     connect_to = chr(connect_to_id + ord('a'))
                 # print node, "connected to=", connect_to
-                cost = random.randint(1, 5)
+                cost = random.randint(1, Network.pathCostMax())
                 # protect duplicated connection
                 if connect_to not in my_graph[node]["neighbor"]:
                     my_graph[node]["neighbor"].append(connect_to)
