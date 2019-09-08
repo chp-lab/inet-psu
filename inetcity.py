@@ -1,5 +1,5 @@
 import random
-class City(object):
+class Network(object):
     # constructure
     def __init__(self, graph_dict=None):
         if graph_dict == None:
@@ -82,9 +82,18 @@ class City(object):
         # print "shortest_path=", shortes_path
         return shortes_path
 
+    def find_isolated_nodes(self):
+        graph = self.__graph_dict
+        """ returns a list of isolated nodes. """
+        isolated = []
+        for node in graph:
+            if not graph[node]:
+                isolated += node
+        return isolated
+
 if __name__ == "__main__":
 
-    num_node = 5
+    num_node = 10
     my_graph = {}
     for i in range(num_node):
         my_graph[chr(i + ord('a'))] = {"neighbor":[], "cost":[]}
@@ -110,7 +119,7 @@ if __name__ == "__main__":
         # print "node(update)", node, "routing table=", my_graph[node]
     print "routing table=", my_graph
 
-    graph = City(my_graph)
+    graph = Network(my_graph)
 
     print "Vertices of graph:"
     print graph.vertices()
@@ -118,8 +127,11 @@ if __name__ == "__main__":
     print "Edges of graph:"
     print graph.edges()
 
+    print "Isolate node:"
+    print graph.find_isolated_nodes()
+
     src = "a"
-    dest = "c"
+    dest = "j"
     print "All path from" , src, "to", dest, ":"
     print graph.find_all_paths(src, dest)
 
