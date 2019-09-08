@@ -115,37 +115,41 @@ class Network(object):
         nx.draw_networkx(G, with_labels=True)
         plt.show()
 
+    @staticmethod
+    def createTopology():
+        num_node = 10
+        my_graph = {}
+        for i in range(num_node):
+            my_graph[chr(i + ord('a'))] = {"neighbor": [], "cost": []}
+        # print "empty routing table=", my_graph
+
+        for node in my_graph:
+            # node is key of my_graph
+            # print "node", node, "routing table=", my_graph[node]
+            connect_to_id = random.randint(0, num_node - 1)
+            connect_to = chr(connect_to_id + ord('a'))
+            # protect connect to itself
+            # protect connect to unvailable port
+            if len(my_graph[node]["neighbor"]) < 3:
+                while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
+                    # print node, "cannot connect to", connect_to
+                    connect_to_id = random.randint(0, num_node - 1)
+                    connect_to = chr(connect_to_id + ord('a'))
+                # print node, "connected to=", connect_to
+                cost = random.randint(1, 5)
+                # protect duplicated connection
+                if connect_to not in my_graph[node]["neighbor"]:
+                    my_graph[node]["neighbor"].append(connect_to)
+                    my_graph[connect_to]["neighbor"].append(node)
+                    my_graph[node]["cost"].append(cost)
+                    my_graph[connect_to]["cost"].append(cost)
+                # print "node(update)", node, "routing table=", my_graph[node]
+        print "routing table=", my_graph
+        return my_graph
+
 if __name__ == "__main__":
 
-    num_node = 10
-    my_graph = {}
-    for i in range(num_node):
-        my_graph[chr(i + ord('a'))] = {"neighbor":[], "cost":[]}
-    # print "empty routing table=", my_graph
-
-    for node in my_graph:
-        # node is key of my_graph
-        # print "node", node, "routing table=", my_graph[node]
-        connect_to_id = random.randint(0, num_node - 1)
-        connect_to = chr(connect_to_id + ord('a'))
-        # protect connect to itself
-        # protect connect to unvailable port
-        if len(my_graph[node]["neighbor"]) < 3:
-            while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
-                # print node, "cannot connect to", connect_to
-                connect_to_id = random.randint(0, num_node - 1)
-                connect_to = chr(connect_to_id + ord('a'))
-            # print node, "connected to=", connect_to
-            cost = random.randint(1, 3)
-            # protect duplicated connection
-            if connect_to not in my_graph[node]["neighbor"]:
-                my_graph[node]["neighbor"].append(connect_to)
-                my_graph[connect_to]["neighbor"].append(node)
-                my_graph[node]["cost"].append(cost)
-                my_graph[connect_to]["cost"].append(cost)
-            # print "node(update)", node, "routing table=", my_graph[node]
-    print "routing table=", my_graph
-
+    my_graph = Network.createTopology()
     graph = Network(my_graph)
 
     print "Vertices of graph:"
