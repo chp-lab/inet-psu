@@ -1,4 +1,7 @@
 import random
+import matplotlib.pyplot as plt
+import networkx as nx
+
 class Network(object):
     # constructure
     def __init__(self, graph_dict=None):
@@ -84,12 +87,33 @@ class Network(object):
 
     def find_isolated_nodes(self):
         graph = self.__graph_dict
-        """ returns a list of isolated nodes. """
         isolated = []
         for node in graph:
             if not graph[node]:
                 isolated += node
         return isolated
+
+    def drawing(self):
+        G = nx.Graph()
+        graph = self.__graph_dict
+        nodes = []
+        edges = self.edges()
+        print "edges=", edges
+        for node in graph:
+            # print "node=", node
+            nodes.append(node)
+        # print "nodes=", nodes
+
+        edges_list = []
+        for edge in edges:
+            # print edge['data']
+            pair = (edge['data'].pop(), edge['data'].pop())
+            edges_list.append(pair)
+        # print "edges list=", edges_list
+        G.add_nodes_from(nodes)
+        G.add_edges_from(edges_list)
+        nx.draw_networkx(G, with_labels=True)
+        plt.show()
 
 if __name__ == "__main__":
 
@@ -104,19 +128,22 @@ if __name__ == "__main__":
         # print "node", node, "routing table=", my_graph[node]
         connect_to_id = random.randint(0, num_node - 1)
         connect_to = chr(connect_to_id + ord('a'))
-        while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
-            # print node, "cannot connect to", connect_to
-            connect_to_id = random.randint(0, num_node - 1)
-            connect_to = chr(connect_to_id + ord('a'))
-        # print node, "connected to=", connect_to
-        cost = random.randint(1, 3)
-        # protect duplicated connection
-        if connect_to not in my_graph[node]["neighbor"]:
-            my_graph[node]["neighbor"].append(connect_to)
-            my_graph[connect_to]["neighbor"].append(node)
-            my_graph[node]["cost"].append(cost)
-            my_graph[connect_to]["cost"].append(cost)
-        # print "node(update)", node, "routing table=", my_graph[node]
+        # protect connect to itself
+        # protect connect to unvailable port
+        if len(my_graph[node]["neighbor"]) < 3:
+            while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
+                # print node, "cannot connect to", connect_to
+                connect_to_id = random.randint(0, num_node - 1)
+                connect_to = chr(connect_to_id + ord('a'))
+            # print node, "connected to=", connect_to
+            cost = random.randint(1, 3)
+            # protect duplicated connection
+            if connect_to not in my_graph[node]["neighbor"]:
+                my_graph[node]["neighbor"].append(connect_to)
+                my_graph[connect_to]["neighbor"].append(node)
+                my_graph[node]["cost"].append(cost)
+                my_graph[connect_to]["cost"].append(cost)
+            # print "node(update)", node, "routing table=", my_graph[node]
     print "routing table=", my_graph
 
     graph = Network(my_graph)
@@ -137,3 +164,5 @@ if __name__ == "__main__":
 
     print "Shorted path from" , src, "to", dest, ":"
     print graph.myShrotedPath(src, dest)
+
+    graph.drawing()
