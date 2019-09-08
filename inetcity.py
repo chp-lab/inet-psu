@@ -1,5 +1,5 @@
-class Graph(object):
-
+import random
+class City(object):
     # constructure
     def __init__(self, graph_dict=None):
         if graph_dict == None:
@@ -14,23 +14,30 @@ class Graph(object):
 
     def __generate_edges(self):
         edges = []
-        # read more about set --> thisset = {"apple", "banana", "cherry"}
+
         for vertex in self.__graph_dict:
-            for neighbour in self.__graph_dict[vertex]:
-                if {neighbour, vertex} not in edges:
-                    edges.append({vertex, neighbour})
+            # print vertex
+            for nei_id in range(len(self.__graph_dict[vertex]["neighbor"])):
+                # print "nei=", self.__graph_dict[vertex]["neighbor"][nei_id]
+                # print "cost=", self.__graph_dict[vertex]["cost"][nei_id]
+                tmp_data = {
+                    "data":{self.__graph_dict[vertex]["neighbor"][nei_id], vertex},
+                    "cost":self.__graph_dict[vertex]["cost"][nei_id]
+                }
+                if tmp_data not in edges:
+                    edges.append(tmp_data)
         return edges
 
     def find_all_paths(self, start_vertex, end_vertex, path=[]):
         graph = self.__graph_dict
         path = path + [start_vertex]
-        
+
         if start_vertex == end_vertex:
             return [path]
         if start_vertex not in graph:
             return []
         paths = []
-        for vertex in graph[start_vertex]:
+        for vertex in graph[start_vertex]["neighbor"]:
             if vertex not in path:
                 extended_paths = self.find_all_paths(vertex,
                                                      end_vertex,
@@ -39,62 +46,82 @@ class Graph(object):
                     paths.append(p)
         return paths
 
-
-    # def diameter(self):
-    #     v = self.vertices()
-    #     # all coordinated
-    #     # [ function(i,j) for i,j in object ]
-    #     pairs = [(v[i], v[j]) for i in range(len(v) - 1) for j in range(i + 1, len(v))]
-    #     print "all coordinate= ", pairs
-    #     smallest_paths = []
-    #     # Iteration in pairs
-    #     for (s, e) in pairs:
-    #         paths = self.find_all_paths(s, e)
-    #         smallest = sorted(paths, key=len)[0]
-    #         smallest_paths.append(smallest)
-    #
-    #     smallest_paths.sort(key=len)
-    #
-    #     diameter = len(smallest_paths[-1]) - 1
-    #     return diameter
-
     def myShrotedPath(self, src, dest):
         all_path = self.find_all_paths(src, dest)
-        print "all_path=", all_path
-        smallest = sorted(all_path, key=len)[0]
-        return smallest
+        edges = self.edges()
+        # print "edges=", edges
+        ospf = []
+        for path in all_path:
+            # print "path=", path
+            cost = 0
+            # calculate path cost
+            for node_id in range(len(path) - 1):
+                # print "pair=", path[node_id], ":", path[node_id + 1]
+                bridge = {path[node_id], path[node_id + 1]}
+                # print "bridge=", bridge
+                for e in edges:
+                    if e['data'] == bridge:
+                        cost = cost + e['cost']
+            # print "cost=", cost
+            ospf.append({'path':path, 'cost': cost})
+        # print "ospf=", ospf
+        ospf_cost = 0
+        # find least cost
+        for i in range(len(ospf)):
+            if i == 0:
+                ospf_cost = ospf[i]['cost']
+            else:
+                if ospf[i]['cost'] < ospf_cost:
+                    ospf_cost = ospf[i]['cost']
+        # print "ospf_cost=", ospf_cost
+        # find shortest path
+        shortes_path = []
+        for shortest in ospf:
+            if shortest['cost'] == ospf_cost:
+                shortes_path.append(shortest)
+        # print "shortest_path=", shortes_path
+        return shortes_path
 
 if __name__ == "__main__":
-    g = { "a" : ["c"],
-          "b" : ["c","e","f"],
-          "c" : ["a","b","d","e"],
-          "d" : ["c"],
-          "e" : ["b","c","f"],
-          "f" : ["b","e"]
-    }
 
-    new_g = { "a" : ["c"],
-          "b" : ["c","e","f"],
-          "c" : ["a","b","d","e"],
-          "d" : ["c"],
-          "e" : ["b","c","f"],
-          "f" : ["b","e"]
-    }
+    num_node = 5
+    my_graph = {}
+    for i in range(num_node):
+        my_graph[chr(i + ord('a'))] = {"neighbor":[], "cost":[]}
+    # print "empty routing table=", my_graph
 
-    print g
+    for node in my_graph:
+        # node is key of my_graph
+        # print "node", node, "routing table=", my_graph[node]
+        connect_to_id = random.randint(0, num_node - 1)
+        connect_to = chr(connect_to_id + ord('a'))
+        while connect_to == node or len(my_graph[connect_to]["neighbor"]) >= 3:
+            # print node, "cannot connect to", connect_to
+            connect_to_id = random.randint(0, num_node - 1)
+            connect_to = chr(connect_to_id + ord('a'))
+        # print node, "connected to=", connect_to
+        cost = random.randint(1, 3)
+        # protect duplicated connection
+        if connect_to not in my_graph[node]["neighbor"]:
+            my_graph[node]["neighbor"].append(connect_to)
+            my_graph[connect_to]["neighbor"].append(node)
+            my_graph[node]["cost"].append(cost)
+            my_graph[connect_to]["cost"].append(cost)
+        # print "node(update)", node, "routing table=", my_graph[node]
+    print "routing table=", my_graph
 
-    graph = Graph(g)
+    graph = City(my_graph)
 
-    # print "Vertices of graph:"
-    # print graph.vertices()
-    #
-    # print "Edges of graph:"
-    # print graph.edges()
-    #
-    # print "All path from a to f:"
-    # print graph.find_all_paths("a", "f")
+    print "Vertices of graph:"
+    print graph.vertices()
 
-    print "Shorted path from a to f is:"
-    print graph.myShrotedPath("a", "f")
+    print "Edges of graph:"
+    print graph.edges()
 
+    src = "a"
+    dest = "c"
+    print "All path from" , src, "to", dest, ":"
+    print graph.find_all_paths(src, dest)
 
+    print "Shorted path from" , src, "to", dest, ":"
+    print graph.myShrotedPath(src, dest)
